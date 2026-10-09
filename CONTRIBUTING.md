@@ -26,7 +26,7 @@ Please keep scenarios deterministic by default and add tests for those semantics
 
 ## Scope
 
-Prefer small, composable failure modes over application-specific behavior. API Fault Lab should not learn about payments, retailers, orders, providers, or any private product model.
+Prefer small, composable failure modes over application-specific behavior. API Fault Lab should remain domain-agnostic and must not depend on private product models, private integrations, or proprietary application logic.
 
 ## Pull requests
 
