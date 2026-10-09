@@ -1,10 +1,14 @@
 # API Fault Lab
 
+[![CI](https://github.com/jamal2drive/api-fault-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/jamal2drive/api-fault-lab/actions/workflows/ci.yml)
+
 **Deterministic fault injection for API clients and integrations.**
 
 API Fault Lab is a small, zero-dependency reverse proxy that reproduces the failure modes ordinary mocks usually miss: ambiguous outcomes, connection resets, duplicate dispatch, deterministic latency, and injected HTTP errors.
 
 It is built for local development, CI, sandboxes, and staging environments.
+
+**Project status:** early-stage and actively maintained. Behavior and CLI details may evolve before 1.0, while failure semantics remain explicit and test-backed.
 
 > **Safety:** use API Fault Lab only with systems you control or are authorized to test. Some scenarios intentionally duplicate requests or hide successful responses and can create real side effects.
 
@@ -33,9 +37,9 @@ That is not equivalent to "the request failed." It is an **ambiguous outcome**. 
 
 ## 60-second demo
 
-Clone the repository, then run:
-
 ```bash
+git clone https://github.com/jamal2drive/api-fault-lab.git
+cd api-fault-lab
 npm test
 npm run demo
 ```
@@ -197,6 +201,10 @@ Near-term ideas are tracked in [ROADMAP.md](ROADMAP.md). Contributions are welco
 ## Responsible use
 
 Read [SECURITY.md](SECURITY.md) before using destructive scenarios. Keep duplicate-dispatch and response-loss tests limited to local, disposable, sandbox, or explicitly authorized systems.
+
+## Maintainer
+
+API Fault Lab is maintained by [@jamal2drive](https://github.com/jamal2drive). See [MAINTAINERS.md](MAINTAINERS.md) for project-maintenance responsibilities.
 
 ## License
 
