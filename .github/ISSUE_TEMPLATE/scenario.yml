@@ -1,0 +1,29 @@
+name: Scenario proposal
+description: Propose a deterministic API failure mode
+title: "[scenario] "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: failure
+    attributes:
+      label: Failure mode
+      description: Describe the real failure you want to reproduce.
+    validations:
+      required: true
+  - type: dropdown
+    id: upstream
+    attributes:
+      label: Should the upstream receive the request?
+      options: ["No", "Once", "More than once", "Depends"]
+    validations:
+      required: true
+  - type: textarea
+    id: client
+    attributes:
+      label: What should the caller observe?
+    validations:
+      required: true
+  - type: textarea
+    id: safety
+    attributes:
+      label: Side-effect / safety considerations
