@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Added exact request-header matching with `--match-header name:value`.
+- Header names match case-insensitively while values match exactly.
+- Fault cadence continues to count only requests that satisfy all configured selectors.
+
 ## 0.2.1
 
 - documentation-only privacy hardening before public release
