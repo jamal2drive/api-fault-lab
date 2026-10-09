@@ -1,0 +1,33 @@
+{
+  "name": "api-fault-lab",
+  "version": "0.2.1",
+  "description": "A zero-dependency reverse proxy for deterministically reproducing hard API failure modes.",
+  "type": "module",
+  "bin": {
+    "api-fault-lab": "./src/cli.js"
+  },
+  "files": [
+    "src/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "start": "node ./src/cli.js",
+    "demo": "node ./examples/ambiguous-outcome-demo.js",
+    "test": "node --test",
+    "check": "node --check ./src/cli.js && node --check ./src/proxy.js && node --check ./examples/mock-api.js && node --check ./examples/ambiguous-outcome-demo.js && node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "api",
+    "testing",
+    "fault-injection",
+    "reliability",
+    "reverse-proxy",
+    "chaos-testing",
+    "idempotency"
+  ],
+  "license": "MIT"
+}
