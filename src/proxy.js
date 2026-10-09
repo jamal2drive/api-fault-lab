@@ -51,11 +51,32 @@ function normalizeTarget(target) {
   return url;
 }
 
-function requestMatches(req, matchMethod, matchPath) {
+function normalizeHeaderMatch(matchHeader) {
+  if (!matchHeader) return null;
+  const text = String(matchHeader);
+  const separator = text.indexOf(':');
+  if (separator <= 0) throw new Error('matchHeader must use name:value');
+
+  const name = text.slice(0, separator).trim().toLowerCase();
+  const value = text.slice(separator + 1).trim();
+  if (!name || !value) throw new Error('matchHeader must use non-empty name:value');
+
+  return { name, value };
+}
+
+function requestMatches(req, matchMethod, matchPath, headerMatch) {
   if (matchMethod && req.method?.toUpperCase() !== matchMethod) return false;
   if (matchPath) {
     const pathname = new URL(req.url ?? '/', 'http://api-fault-lab.local').pathname;
     if (pathname !== matchPath) return false;
+  }
+  if (headerMatch) {
+    const actual = req.headers[headerMatch.name];
+    if (Array.isArray(actual)) {
+      if (!actual.some((value) => String(value) === headerMatch.value)) return false;
+    } else if (actual === undefined || String(actual) !== headerMatch.value) {
+      return false;
+    }
   }
   return true;
 }
@@ -114,6 +135,7 @@ export function createFaultProxy({
   every = 1,
   matchMethod,
   matchPath,
+  matchHeader,
   logger = console
 }) {
   if (!target) throw new Error('target is required');
@@ -127,6 +149,7 @@ export function createFaultProxy({
 
   const normalizedMethod = matchMethod ? String(matchMethod).toUpperCase() : null;
   if (matchPath && !String(matchPath).startsWith('/')) throw new Error('matchPath must start with /');
+  const normalizedHeaderMatch = normalizeHeaderMatch(matchHeader);
 
   let requestCount = 0;
   let matchedRequestCount = 0;
@@ -134,7 +157,7 @@ export function createFaultProxy({
   const server = http.createServer(async (req, res) => {
     requestCount += 1;
     const requestId = randomUUID();
-    const matched = requestMatches(req, normalizedMethod, matchPath);
+    const matched = requestMatches(req, normalizedMethod, matchPath, normalizedHeaderMatch);
     if (matched) matchedRequestCount += 1;
 
     const inject = matched && matchedRequestCount % every === 0;

@@ -21,7 +21,7 @@ function parseArgs(argv) {
 }
 
 function printHelp() {
-  console.log(`api-fault-lab v${VERSION}\n\nUsage:\n  api-fault-lab --target <url> [options]\n\nOptions:\n  --target <url>          Upstream API base URL (required)\n  --port <number>         Local proxy port (default: 8787)\n  --scenario <name>       Fault scenario (default: pass-through)\n  --latency-ms <number>   Delay for latency scenario (default: 1500)\n  --error-status <number> Status for http-error scenario (default: 503)\n  --every <number>        Inject on every Nth matching request (default: 1)\n  --match-method <method> Only inject for this HTTP method, e.g. POST\n  --match-path <path>     Only inject for this exact URL path, e.g. /orders\n  --list-scenarios        Print scenario names and exit\n  --version               Print version and exit\n  --help                  Show this help\n\nScenarios:\n  ${[...SCENARIOS].join('\n  ')}\n\nSafety:\n  Use against local, test, or sandbox systems. Some scenarios intentionally\n  duplicate or interrupt requests and can cause real side effects.\n`);
+  console.log(`api-fault-lab v${VERSION}\n\nUsage:\n  api-fault-lab --target <url> [options]\n\nOptions:\n  --target <url>          Upstream API base URL (required)\n  --port <number>         Local proxy port (default: 8787)\n  --scenario <name>       Fault scenario (default: pass-through)\n  --latency-ms <number>   Delay for latency scenario (default: 1500)\n  --error-status <number> Status for http-error scenario (default: 503)\n  --every <number>        Inject on every Nth matching request (default: 1)\n  --match-method <method> Only inject for this HTTP method, e.g. POST\n  --match-path <path>     Only inject for this exact URL path, e.g. /orders\n  --match-header <n:v>    Only inject when this request header exactly matches\n  --list-scenarios        Print scenario names and exit\n  --version               Print version and exit\n  --help                  Show this help\n\nScenarios:\n  ${[...SCENARIOS].join('\n  ')}\n\nSafety:\n  Use against local, test, or sandbox systems. Some scenarios intentionally\n  duplicate or interrupt requests and can cause real side effects.\n`);
 }
 
 function parseInteger(name, value, { min, max } = {}) {
@@ -63,7 +63,8 @@ try {
     errorStatus,
     every,
     matchMethod: args['match-method'],
-    matchPath: args['match-path']
+    matchPath: args['match-path'],
+    matchHeader: args['match-header']
   });
 
   server.listen(port, '127.0.0.1', () => {
@@ -73,6 +74,7 @@ try {
     console.log(`Fault cadence: every ${every} matching request(s)`);
     if (args['match-method']) console.log(`Match method: ${String(args['match-method']).toUpperCase()}`);
     if (args['match-path']) console.log(`Match path: ${args['match-path']}`);
+    if (args['match-header']) console.log(`Match header: ${args['match-header']}`);
   });
 
   process.on('SIGINT', () => server.close(() => process.exit(0)));

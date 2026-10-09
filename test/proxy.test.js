@@ -171,7 +171,35 @@ test('method and path matching leave unrelated traffic untouched', async () => {
   }
 });
 
-test('every=N counts matching requests, not unrelated traffic', async () => {
+test('header matching is case-insensitive by name and exact by value', async () => {
+  let hits = 0;
+  const upstream = await startUpstream((req, res) => {
+    hits += 1;
+    res.end('ok');
+  });
+
+  try {
+    await withProxy({
+      target: upstream.url,
+      scenario: 'http-error',
+      errorStatus: 501,
+      matchHeader: 'X-Fault-Case: inject'
+    }, async (proxyUrl) => {
+      const missing = await fetch(`${proxyUrl}/x`);
+      const wrong = await fetch(`${proxyUrl}/x`, { headers: { 'x-fault-case': 'skip' } });
+      const matched = await fetch(`${proxyUrl}/x`, { headers: { 'x-fault-case': 'inject' } });
+
+      assert.equal(missing.status, 200);
+      assert.equal(wrong.status, 200);
+      assert.equal(matched.status, 501);
+      assert.equal(hits, 2);
+    });
+  } finally {
+    await close(upstream.server);
+  }
+});
+
+test('every=N counts fully matched requests, not unrelated traffic', async () => {
   let hits = 0;
   const upstream = await startUpstream((req, res) => {
     hits += 1;
@@ -184,13 +212,24 @@ test('every=N counts matching requests, not unrelated traffic', async () => {
       scenario: 'http-error',
       every: 2,
       matchMethod: 'POST',
-      matchPath: '/orders'
+      matchPath: '/orders',
+      matchHeader: 'x-fault-case:yes'
     }, async (proxyUrl) => {
       assert.equal((await fetch(`${proxyUrl}/health`)).status, 200);
       assert.equal((await fetch(`${proxyUrl}/orders`, { method: 'POST' })).status, 200);
-      assert.equal((await fetch(`${proxyUrl}/health`)).status, 200);
-      assert.equal((await fetch(`${proxyUrl}/orders`, { method: 'POST' })).status, 503);
-      assert.equal(hits, 3);
+      assert.equal((await fetch(`${proxyUrl}/orders`, {
+        method: 'POST',
+        headers: { 'x-fault-case': 'yes' }
+      })).status, 200);
+      assert.equal((await fetch(`${proxyUrl}/orders`, {
+        method: 'POST',
+        headers: { 'x-fault-case': 'no' }
+      })).status, 200);
+      assert.equal((await fetch(`${proxyUrl}/orders`, {
+        method: 'POST',
+        headers: { 'x-fault-case': 'yes' }
+      })).status, 503);
+      assert.equal(hits, 4);
     });
   } finally {
     await close(upstream.server);
@@ -202,4 +241,5 @@ test('invalid proxy options fail fast', () => {
   assert.throws(() => createFaultProxy({ target: 'http://example.com', every: 0 }), /every/);
   assert.throws(() => createFaultProxy({ target: 'http://example.com', errorStatus: 200 }), /errorStatus/);
   assert.throws(() => createFaultProxy({ target: 'http://example.com', matchPath: 'orders' }), /matchPath/);
+  assert.throws(() => createFaultProxy({ target: 'http://example.com', matchHeader: 'missing-separator' }), /matchHeader/);
 });

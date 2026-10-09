@@ -6,7 +6,6 @@ API Fault Lab intentionally starts small. Proposed additions should keep scenari
 
 - response truncation after N bytes
 - upstream timeout / never-respond scenario
-- header-based request matching
 - simple JSON scenario files
 - optional request/response metadata capture with redaction
 - Docker image
