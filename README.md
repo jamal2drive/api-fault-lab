@@ -101,17 +101,18 @@ See [docs/SCENARIOS.md](docs/SCENARIOS.md) for exact semantics.
 
 ## Target only the request you care about
 
-Faults can be restricted by HTTP method and exact URL path:
+Faults can be restricted by HTTP method, exact URL path, and an exact request-header value. Selectors can be combined:
 
 ```bash
 node src/cli.js \
   --target http://127.0.0.1:9090 \
-  --scenario accepted-response-lost \
+  --scenario http-error \
   --match-method POST \
-  --match-path /orders
+  --match-path /orders \
+  --match-header 'x-fault-case: inject'
 ```
 
-Unmatched requests pass through normally.
+Header names are matched case-insensitively; header values are exact. Unmatched requests pass through normally.
 
 ## Deterministic cadence
 
@@ -163,6 +164,7 @@ api-fault-lab --target <url> [options]
 --every <number>        Inject on every Nth matching request (default: 1)
 --match-method <method> Only inject for this HTTP method, e.g. POST
 --match-path <path>     Only inject for this exact URL path, e.g. /orders
+--match-header <n:v>    Only inject when this request header exactly matches
 --list-scenarios        Print scenario names and exit
 --version               Print version and exit
 --help                  Show help
