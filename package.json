@@ -29,5 +29,13 @@
     "chaos-testing",
     "idempotency"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jamal2drive/api-fault-lab.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jamal2drive/api-fault-lab/issues"
+  },
+  "homepage": "https://github.com/jamal2drive/api-fault-lab#readme",
   "license": "MIT"
 }
